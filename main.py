@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from bs4 import BeautifulSoup
 import urllib.request
 import threading
+import sys
 
 @dataclass
 class link:
@@ -85,12 +86,17 @@ def findLinks(url1,lay:int):
 act_layer = []
 next_layer = []
 
-def expandingGraph(n, endUrl): #takes link and putts all the links to queue (next_layer list)
-    if n.url == endUrl:
-        print("FOUND!")
-        quit()
-        return n.layer  
+found = False
 
+def expandingGraph(n, endUrl): #takes link and putts all the links to queue (next_layer list)
+    global act_layer 
+    global next_layer 
+    global found
+
+    if n.url == endUrl:
+        print("FOUND!\nFOUND!", n.url, endUrl)
+        found = True
+        return n.layer
     try:
         next_layer.extend(findLinks(n.url, n.layer+1))
         print(n.url, " visited ", n.layer)
@@ -101,6 +107,11 @@ def expandingGraph(n, endUrl): #takes link and putts all the links to queue (nex
     
 
 def bfs(startingUrl, endUrl):
+
+    global act_layer
+    global next_layer 
+    global found
+
     act_layer.append(link(0,startingUrl))
     while True:
         thread_list = []
@@ -108,15 +119,26 @@ def bfs(startingUrl, endUrl):
         for n in act_layer:
             thread_list.append(threading.Thread(target=expandingGraph, args=(n, endUrl)))
 
-        for t in thread_list:
+        i = 0
+        last = 0
+        while i < len(thread_list):
             act_layer.pop(0)
-            t.start()
+            thread_list[i].start()
 
+            if i%len(thread_list)/2==0:
+                while last<i:
+                    thread_list[last].join()
+                    last=last+1
+            if found:
+                return 0
+            i=i+1        
+        
         act_layer=next_layer.copy()
         next_layer.clear()
         thread_list.clear()
+        i=0
         
         
 
-print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org//wiki/Brigade"))
+print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org//wiki/High_Middle_Ages"))
 
