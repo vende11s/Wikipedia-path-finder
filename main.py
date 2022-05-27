@@ -37,7 +37,7 @@ bad_sites = [
 ]
 
 good_sites = [
-    "en.wikipedia.org",
+    "en.m.wikipedia.org",
 
 ]
 
@@ -47,7 +47,7 @@ def UrlFilter(url):
 
 
     if url.startswith("/wiki/"):
-        url = "https://en.wikipedia.org/" + url
+        url = "https://en.m.wikipedia.org/" + url
 
     bad = False
     for site in bad_sites:
@@ -59,7 +59,10 @@ def UrlFilter(url):
             bad = True
             break
 
-
+    for site in visited:
+        if site in url.lower():
+            bad = True
+            break
 
     if not bad:
         return url
@@ -81,24 +84,31 @@ def findLinks(url1,lay:int):
 
 def bfs(startingUrl, endUrl):
     counter = 0
-    queue = []
-    queue.append(link(0,startingUrl))
-    while queue:
-        n = queue[0]
-        queue.pop(0)
+    act_layer = []
+    next_layer = []
+    act_layer.append(link(0,startingUrl))
+    while act_layer:
+        n = act_layer[0]
+        act_layer.pop(0)
 
         if n.layer > counter:
             coutner=counter+1
 
         if n.url == endUrl:
             return counter    
-       # try:
-        queue.extend(findLinks(n.url, n.layer+1))
 
-        #except:
-         #   print("couldn't open: ", n.url)
+        if not act_layer:
+            act_layer = next_layer.copy()
+            next_layer.clear()
 
-        print(n.url, " visited ", n.layer)
+        try:
+            next_layer.extend(findLinks(n.url, n.layer+1))
+            print(n.url, " visited ", n.layer)
+
+        except:
+            print("couldn't open: ", n.url)
         visited.append(n.url)
 
-print(bfs("http://en.wikipedia.org/wiki/flags","https://en.wikipedia.org//wiki/Brigade"))
+
+print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org//wiki/Brigade"))
+
