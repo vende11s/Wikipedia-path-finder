@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from bs4 import BeautifulSoup
 import urllib.request
+import threading
 
 @dataclass
 class link:
@@ -81,34 +82,41 @@ def findLinks(url1,lay:int):
 
     return UrlList
 
+act_layer = []
+next_layer = []
+
+def expandingGraph(n, endUrl): #takes link and putts all the links to queue (next_layer list)
+    if n.url == endUrl:
+        print("FOUND!")
+        quit()
+        return n.layer  
+
+    try:
+        next_layer.extend(findLinks(n.url, n.layer+1))
+        print(n.url, " visited ", n.layer)
+
+    except:
+        print("couldn't open: ", n.url)
+    visited.append(n.url)
+    
 
 def bfs(startingUrl, endUrl):
-    counter = 0
-    act_layer = []
-    next_layer = []
     act_layer.append(link(0,startingUrl))
-    while act_layer:
-        n = act_layer[0]
-        act_layer.pop(0)
+    while True:
+        thread_list = []
 
-        if n.layer > counter:
-            coutner=counter+1
+        for n in act_layer:
+            thread_list.append(threading.Thread(target=expandingGraph, args=(n, endUrl)))
 
-        if n.url == endUrl:
-            return counter    
+        for t in thread_list:
+            act_layer.pop(0)
+            t.start()
 
-        if not act_layer:
-            act_layer = next_layer.copy()
-            next_layer.clear()
-
-        try:
-            next_layer.extend(findLinks(n.url, n.layer+1))
-            print(n.url, " visited ", n.layer)
-
-        except:
-            print("couldn't open: ", n.url)
-        visited.append(n.url)
-
+        act_layer=next_layer.copy()
+        next_layer.clear()
+        thread_list.clear()
+        
+        
 
 print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org//wiki/Brigade"))
 
