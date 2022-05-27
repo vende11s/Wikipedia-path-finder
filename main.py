@@ -61,7 +61,7 @@ def UrlFilter(url):
             bad = True
             break
 
-    for site in visited:
+    for site in visited: ###NOT WORKING!!1!1!!
         if site in url.lower():
             bad = True
             break
@@ -125,7 +125,7 @@ def bfs(startingUrl, endUrl):
             act_layer.pop(0)
             thread_list[i].start()
 
-            if i%len(thread_list)/2==0:
+            if i%5==0:
                 while last<i:
                     thread_list[last].join()
                     last=last+1
@@ -140,5 +140,5 @@ def bfs(startingUrl, endUrl):
         
         
 
-print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org//wiki/High_Middle_Ages"))
+print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org/wiki/Halophyte")) #flags -> halophyte - 4 links
 
