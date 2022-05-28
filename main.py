@@ -9,7 +9,7 @@ class link:
     layer: int
     url: str
 
-visited = []
+visited = set()
 
 bad_sites = [
     "wiki/Wikipedia",
@@ -61,10 +61,8 @@ def UrlFilter(url):
             bad = True
             break
 
-    for site in visited: ###NOT WORKING!!1!1!!
-        if site in url.lower():
-            bad = True
-            break
+    if url in visited:
+        bad = True
 
     if not bad:
         return url
@@ -103,7 +101,7 @@ def expandingGraph(n, endUrl): #takes link and putts all the links to queue (nex
 
     except:
         print("couldn't open: ", n.url)
-    visited.append(n.url)
+    visited.add(n.url)
     
 
 def bfs(startingUrl, endUrl):
@@ -125,7 +123,7 @@ def bfs(startingUrl, endUrl):
             act_layer.pop(0)
             thread_list[i].start()
 
-            if i%5==0:
+            if i%10==0:
                 while last<i:
                     thread_list[last].join()
                     last=last+1
@@ -140,5 +138,5 @@ def bfs(startingUrl, endUrl):
         
         
 
-print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org/wiki/Halophyte")) #flags -> halophyte - 4 links
+print(bfs("http://en.m.wikipedia.org/wiki/flags","https://en.m.wikipedia.org/wiki/Banner")) #flags -> halophyte - 4 links
 
